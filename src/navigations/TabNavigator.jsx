@@ -5,6 +5,7 @@ import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
 import ButtonDrawer from "../components/ButtonDrawer";
+import TaskStackNavigator from "./TaskStackNavigator";
 
 const Tab = createBottomTabNavigator();
 
@@ -13,7 +14,7 @@ export default function TabNavigator() {
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={TaskStackNavigator}
         options={({ navigation }) => ({
           title: "Inicio",
           headerLeft: () => (

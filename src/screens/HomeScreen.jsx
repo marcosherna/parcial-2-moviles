@@ -1,9 +1,11 @@
 import React from "react";
-import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native"; 
+import { getFirestore } from "firebase/firestore"
 
 import { Plus } from "lucide-react-native";
 
 import TaskCard from "../components/TaskCard";
+import { app } from "../libs/firebase"
 
 export default function HomeScreen({ navigation }) {
   const [tasks, setTasks] = React.useState([]);
@@ -18,6 +20,10 @@ export default function HomeScreen({ navigation }) {
       completed: index % 3 === 0,
     }));
     setTasks(data);
+
+    const db = getFirestore(app)
+    console.log("database", db)
+
   }, []);
 
   const handleTaskClick = (task) => {

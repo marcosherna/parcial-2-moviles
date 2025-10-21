@@ -1,20 +1,26 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Home, User } from "lucide-react-native";
+import { Home, User, Menu } from "lucide-react-native";
 
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+
+import ButtonDrawer from "../components/ButtonDrawer";
 
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{
+        options={({ navigation }) => ({
+          title: "Inicio",
+          headerLeft: () => (
+            <ButtonDrawer onPress={() => navigation.toggleDrawer()} />
+          ),
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
-        }}
+        })}
       />
       <Tab.Screen
         name="Profile"

@@ -5,10 +5,10 @@ import * as Lucide from 'lucide-react-native'; // Import all Lucide icons
 export default function IconButton({
   icon = 'plus', 
   size = 24, 
-  color = '#10B981', 
+  color = '#10B981', // Default color matching your theme
   onPress,
   disabled = false,
-  variant = 'default', 
+  variant = 'default', // 'default', 'outline', or 'contained'
   style = {},
   ...props
 }) {

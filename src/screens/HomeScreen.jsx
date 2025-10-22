@@ -31,8 +31,9 @@ export default function HomeScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
-  const handleTaskClick = (task) => {
-    navigation.navigate("book-detail");
+  const handleBookDetail = (book) => {
+    console.log(book)
+    navigation.navigate("book-detail", { book });
   };
 
   const handleFormClick = () => {
@@ -52,7 +53,7 @@ export default function HomeScreen({ navigation }) {
               title={item?.titulo}
               author={item?.autor}
               thumbnail={item.miniatura}
-              onPress={() => handleTaskClick()}
+              onPress={() => handleBookDetail(item)}
             />
           )}
           contentContainerStyle={{ padding: 10 }}

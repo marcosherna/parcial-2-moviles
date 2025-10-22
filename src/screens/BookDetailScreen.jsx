@@ -1,75 +1,55 @@
 import React from "react";
-import { View, Text, StyleSheet, Switch } from "react-native";
+import { View, Text, StyleSheet, Image, Switch } from "react-native";
+import IconButton from "../components/IconButton";
 
-export default function BookDetailScreen() {
-  const [isEnabled, setIsEnabled] = React.useState(false);
+export default function BookDetailScreen({ navigation, route }) {
+  const { book } = route.params || {};
+  const [isRead, setIsRead] = React.useState(false);
+  const [isFavorite, setIsFavorite] = React.useState(false);
 
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const toggleRead = () => setIsRead((prev) => !prev);
+  const toggleFavorite = () => setIsFavorite((prev) => !prev);
 
   return (
     <View style={styles.container}>
-      <View style={styles.header_container}>
-        <Text style={styles.header}>Task todo</Text>
-        <Text style={styles.title}>
-          Create Actionable Plans for Product - Phase 01
-        </Text>
-        <Text style={styles.dots}>⋯</Text>
+      {/* Imagen */}
+      {book?.miniatura && (
+        <Image source={{ uri: book.miniatura }} style={styles.thumbnail} />
+      )}
+
+      {/* Titulo y autor */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>{book?.titulo}</Text>
+        <Text style={styles.author}>{book?.autor}</Text>
       </View>
 
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          marginBottom: 10,
-        }}
-      >
-        <Text style={styles.date}>Today</Text>
-        <Text style={styles.time}>13:05 PM</Text>
-        <Text style={styles.progress}>| 0/2</Text>
-      </View>
-
-      <View style={styles.header_container}>
-        <Text style={styles.header}>Descripcion</Text>
-        <Text
-          style={{
-            ...styles.title,
-            fontSize: 18,
-            textAlign: "justify",
-          }}
-        >
-          Lorem Ipsum is simply dummy text of the printing and typesetting
-          industry. Lorem Ipsum has been the industry's standard dummy text ever
-          since the 1500s, when an unknown printer took a galley of type and
-          scrambled it to make a type specimen book. It has survived not only
-          five centuries, but also the leap into electronic typesetting,
-          remaining essentially unchanged.
-        </Text>
-        <Text style={styles.dots}>⋯</Text>
-      </View>
-
-      <View>
-        <View style={styles.section}>
-          <Text style={styles.header}>Acciones</Text>
-          <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-            <Switch
-              trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isEnabled ? "#007AFF" : "#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleSwitch}
-              value={isEnabled}
-            />
-
-            <Text>{isEnabled ? "Completado" : ""}</Text>
-          </View>
+      {/* Switch para leído */}
+      <View style={styles.actionRow}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isRead ? "#007AFF" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleRead}
+            value={isRead}
+          />
+          <Text style={styles.switchLabel}>
+            {isRead ? "Leído" : "Pendiente"}
+          </Text>
         </View>
+        {/* Icon button para favoritos */}
+        <IconButton
+          icon="Heart"
+          size={28}
+          color={isFavorite ? "#EF4444" : "#10B981"}
+          onPress={toggleFavorite}
+        />
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Informacion</Text>
-          <View style={styles.attachmentRow}>
-            <Text style={styles.attachment}>📄 Preview image.jpg 270.3 KB</Text>
-            <Text style={styles.attachment}>📦 Brief.zip 10.9 MB</Text>
-          </View>
-        </View>
+      {/* Descripción */}
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>Descripción</Text>
+        <Text style={styles.description}>{book?.descripcion}</Text>
       </View>
     </View>
   );
@@ -81,101 +61,48 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#F9FAFB",
   },
-  header_container: {
-    marginVertical: 8,
+  thumbnail: {
+    width: "100%",
+    height: 300,
+    borderRadius: 12,
+    marginBottom: 16,
   },
-  header: {
-    fontSize: 14,
-    color: "#6B7280",
-    marginBottom: 8,
+  headerContainer: {
+    marginBottom: 16,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#1F2937",
-    marginBottom: 8,
+    marginBottom: 4,
   },
-  dots: {
-    fontSize: 20,
+  author: {
+    fontSize: 16,
     color: "#6B7280",
-    alignSelf: "flex-end",
   },
-  date: {
-    fontSize: 14,
-    color: "#10B981",
-    marginRight: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: "rgba(16, 185, 129, 0.2)",
-    borderRadius: 8,
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    gap: 10
   },
-  time: {
-    fontSize: 14,
+  switchLabel: {
+    fontSize: 16,
     color: "#1F2937",
-    marginRight: 8,
+    marginLeft: 8,
   },
-  progress: {
-    fontSize: 14,
-    color: "#6B7280",
-  },
-
   section: {
     marginBottom: 20,
   },
-  sectionTitle: {
+  sectionHeader: {
     fontSize: 16,
     fontWeight: "600",
     color: "#1F2937",
     marginBottom: 8,
   },
-  todoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  checkbox: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  todoText: {
+  description: {
     fontSize: 14,
     color: "#4B5563",
-  },
-  assigneeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  assignee: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#E5E7EB",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-  },
-  assigneeIcon: {
-    fontSize: 20,
-    color: "#6B7280",
-  },
-  addAssignee: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#10B981",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addIcon: {
-    fontSize: 20,
-    color: "#FFFFFF",
-  },
-  attachmentRow: {
-    marginTop: 8,
-  },
-  attachment: {
-    fontSize: 14,
-    color: "#4B5563",
-    marginBottom: 4,
+    textAlign: "justify",
   },
 });

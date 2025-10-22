@@ -30,8 +30,11 @@ export default function PendingScreen({ navigation }) {
     return () => unsubscribe();
   }, [pdgCollectionName]);
 
-  const handleBookDetail = (book) => { 
-    navigation.navigate("book", { screen: "book-detail", params: { book } });
+  const handleBookDetail = (book) => {
+    navigation.navigate("book", {
+      screen: "book-detail",
+      params: { book, fromPendings: true },
+    });
   };
 
   return (

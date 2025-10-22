@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Image, Switch, Alert } from "react-native";
 import IconButton from "../components/IconButton";
 import { useUserSession } from "../store/userSession";
@@ -6,41 +6,50 @@ import {
   addBookToUserCollection,
   deleteBook,
   getFavCollectionName,
+  getPendingCollectionName,
 } from "../network/firebase";
 
 export default function BookDetailScreen({ route, navigation }) {
-  const { book, fromFavorites } = route.params || {};
+  const { book, fromFavorites, fromPendings } = route.params || {};
   const getUserCollectionPrefix = useUserSession(
     (state) => state.getUserCollectionPrefix
   );
   const userPrefix = getUserCollectionPrefix();
 
   const favCollectionName = getFavCollectionName(userPrefix);
+  const pendingCollectionName = getPendingCollectionName(userPrefix);
 
   const [isRead, setIsRead] = useState(book?.estado === "leido");
-  const [isFavorite, setIsFavorite] = useState(!!fromFavorites); // si viene de favoritos, ya está activo
+  const [isFavorite, setIsFavorite] = useState(!!fromFavorites);
 
-  // Toggle leído/pendiente
   const toggleRead = async () => {
-    const newState = !isRead;
-    setIsRead(newState);
-
-    try {
-      await addBookToUserCollection(
-        userPrefix,
-        { ...book, estado: newState ? "leido" : "pendiente" },
-        "pendientes"
-      );
-    } catch (error) {
-      Alert.alert("Error", "No se pudo actualizar el estado del libro.");
-      setIsRead(!newState);
+    if (fromPendings) {
+      try {
+        await deleteBook(pendingCollectionName, book.id);
+        Alert.alert("Eliminado", "El libro fue eliminado de pendientes.");
+        navigation.goBack();
+      } catch (error) {
+        Alert.alert("Error", "No se pudo eliminar de pendientes.");
+      }
+    } else {
+      const newState = !isRead;
+      setIsRead(newState);
+      try {
+        await addBookToUserCollection(
+          userPrefix,
+          { ...book, estado: newState ? "leido" : "pendiente" },
+          "pendientes"
+        );
+      } catch (error) {
+        Alert.alert("Error", "No se pudo actualizar el estado del libro.");
+        setIsRead(!newState);
+      }
     }
   };
 
   // Toggle favorito o eliminar si viene de favoritos
   const toggleFavorite = async () => {
     if (fromFavorites) {
-      // Eliminar de favoritos
       try {
         await deleteBook(favCollectionName, book.id);
         Alert.alert("Eliminado", "El libro fue eliminado de favoritos.");
@@ -49,7 +58,6 @@ export default function BookDetailScreen({ route, navigation }) {
         Alert.alert("Error", "No se pudo eliminar de favoritos.");
       }
     } else {
-      // Agregar a favoritos
       const newState = !isFavorite;
       setIsFavorite(newState);
       try {
@@ -73,25 +81,29 @@ export default function BookDetailScreen({ route, navigation }) {
       </View>
 
       <View style={styles.actionRow}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isRead ? "#007AFF" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleRead}
-            value={isRead}
-          />
-          <Text style={styles.switchLabel}>
-            {isRead ? "Leído" : "Pendiente"}
-          </Text>
-        </View>
+        {!fromFavorites && (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Switch
+              trackColor={{ false: "#767577", true: "#81b0ff" }}
+              thumbColor={isRead ? "#007AFF" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleRead}
+              value={fromPendings ? true : isRead}
+            />
+            <Text style={styles.switchLabel}>
+              {fromPendings ? "Pendiente" : isRead ? "Leído" : "Pendiente"}
+            </Text>
+          </View>
+        )}
 
-        <IconButton
-          icon="Heart"
-          size={28}
-          color={isFavorite ? "#EF4444" : "#10B981"}
-          onPress={toggleFavorite}
-        />
+        {!fromPendings && (
+          <IconButton
+            icon="Heart"
+            size={28}
+            color={isFavorite ? "#EF4444" : "#10B981"}
+            onPress={toggleFavorite}
+          />
+        )}
       </View>
 
       <View style={styles.section}>

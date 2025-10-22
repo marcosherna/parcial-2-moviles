@@ -31,9 +31,8 @@ export default function HomeScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
-  const handleBookDetail = (book) => {
-    console.log(book)
-    navigation.navigate("book-detail", { book });
+  const handleBookDetail = (book) => { 
+    navigation.navigate("book", { screen: "book-detail", params: { book } });
   };
 
   const handleFormClick = () => {

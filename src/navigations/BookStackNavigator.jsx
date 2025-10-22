@@ -8,10 +8,9 @@ const Stack = createStackNavigator();
 
 export default function BookStackNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="book-list" component={HomeScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: true }}>
+      {/* <Stack.Screen name="book-list" component={HomeScreen} /> */}
       <Stack.Screen name="book-detail" component={BookDetailScreen} />
-      {/* <Stack.Screen name="-form" component={TaskkFormScreen} /> */}
     </Stack.Navigator>
   );
 }

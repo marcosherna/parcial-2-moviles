@@ -8,6 +8,7 @@ import PendingScreen from "../screens/PendingScreen";
 import ChatScreen from "../screens/ChatScreen";
 
 import UserButton from "../components/UserButton";
+import HomeScreen from "../screens/HomeScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -16,7 +17,7 @@ export default function TabNavigator() {
     <Tab.Navigator>
       <Tab.Screen
         name="Home"
-        component={BookStackNavigator}
+        component={HomeScreen}
         options={({ navigation }) => ({
           title: "Inicio",
           headerRight: () => (

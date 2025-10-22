@@ -1,19 +1,18 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, Switch, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, Switch, Alert, TouchableOpacity } from "react-native";
 import IconButton from "../components/IconButton";
 import { useUserSession } from "../store/userSession";
 import {
   addBookToUserCollection,
   deleteBook,
+  updateBookField,
   getFavCollectionName,
   getPendingCollectionName,
 } from "../network/firebase";
 
 export default function BookDetailScreen({ route, navigation }) {
   const { book, fromFavorites, fromPendings } = route.params || {};
-  const getUserCollectionPrefix = useUserSession(
-    (state) => state.getUserCollectionPrefix
-  );
+  const getUserCollectionPrefix = useUserSession((state) => state.getUserCollectionPrefix);
   const userPrefix = getUserCollectionPrefix();
 
   const favCollectionName = getFavCollectionName(userPrefix);
@@ -21,7 +20,9 @@ export default function BookDetailScreen({ route, navigation }) {
 
   const [isRead, setIsRead] = useState(book?.estado === "leido");
   const [isFavorite, setIsFavorite] = useState(!!fromFavorites);
-
+  const [isRecommended, setIsRecommended] = useState(book?.recomendado === true);
+  const [rating, setRating] = useState(book?.rating || 0);
+ 
   const toggleRead = async () => {
     if (fromPendings) {
       try {
@@ -45,9 +46,8 @@ export default function BookDetailScreen({ route, navigation }) {
         setIsRead(!newState);
       }
     }
-  };
+  }; 
 
-  // Toggle favorito o eliminar si viene de favoritos
   const toggleFavorite = async () => {
     if (fromFavorites) {
       try {
@@ -66,6 +66,18 @@ export default function BookDetailScreen({ route, navigation }) {
         Alert.alert("Error", "No se pudo agregar a favoritos.");
         setIsFavorite(!newState);
       }
+    }
+  };
+ 
+  const handleRate = async () => {
+    try {
+      const fieldsToUpdate = { recomendado: true, rating: 5 };
+      await updateBookField(favCollectionName, book.id, fieldsToUpdate);
+      setIsRecommended(true);
+      setRating(5);
+      Alert.alert("Gracias", "Has valorado este libro como recomendado ⭐");
+    } catch (error) {
+      Alert.alert("Error", "No se pudo guardar la valoración.");
     }
   };
 
@@ -106,6 +118,20 @@ export default function BookDetailScreen({ route, navigation }) {
         )}
       </View>
 
+      {fromFavorites && (
+        <View style={styles.favoriteExtras}>
+          {isRecommended ? (
+            <View style={styles.recommendedTag}>
+              <Text style={styles.recommendedText}>Recomendado</Text>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.rateButton} onPress={handleRate}>
+              <Text style={styles.rateButtonText}>Valorar</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>Descripción</Text>
         <Text style={styles.description}>{book?.descripcion}</Text>
@@ -132,6 +158,34 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   switchLabel: { fontSize: 16, color: "#1F2937", marginLeft: 8 },
+
+  // ⭐ Extras para favoritos
+  favoriteExtras: {
+    marginBottom: 16,
+    alignItems: "flex-start",
+  },
+  rateButton: {
+    backgroundColor: "#10B981",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  rateButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  recommendedTag: {
+    backgroundColor: "#FDE68A",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  recommendedText: {
+    color: "#92400E",
+    fontWeight: "700",
+  },
+
   section: { marginBottom: 20 },
   sectionHeader: {
     fontSize: 16,

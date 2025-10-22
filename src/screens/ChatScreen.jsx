@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -12,41 +12,76 @@ import MessageBubble from "../components/MessageBubble";
 import Input from "../components/Input";
 import IconButton from "../components/IconButton";
 
-import { API_URL, API_KEY } from "../libs/groq"; 
+import { API_URL, API_KEY } from "../libs/groq";
+import { db } from "../libs/firebase";
+import { useUserSession } from "../store/userSession";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+} from "firebase/firestore";
 
 export default function ChatScreen() {
-  const [messages, setMessages] = useState([
-    { id: "1", text: "Hola! Cómo estás?", isMine: false, time: "01:15 PM" },
-  ]);
+  const userSession = useUserSession();
+  const userPrefix = userSession.getUserCollectionPrefix();
+  const chatCollectionName = `chat_${userPrefix}`;
+
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
 
   const flatListRef = useRef(null);
+ 
+  useEffect(() => {
+    const q = query(
+      collection(db, chatCollectionName),
+      orderBy("timestamp", "asc")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const chatHistory = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        text: doc.data().text,
+        isMine: doc.data().isMine,
+        time: doc.data().time,
+      }));
+      setMessages(chatHistory);
+
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    });
+
+    return () => unsubscribe();
+  }, [chatCollectionName]);
 
   const handleSend = async () => {
     if (inputText.trim() === "") return;
 
+    const timestamp = Date.now();
+    const timeString = new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
     const newMessage = {
-      id: Date.now().toString(),
       text: inputText,
       isMine: true,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      time: timeString,
+      timestamp,
     };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setInputText("");
-
-    // Scroll al final
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-
-    // Llamada al asistente
-    setLoading(true);
+ 
     try {
+      await addDoc(collection(db, chatCollectionName), newMessage);
+    } catch (error) {
+      console.error("Error guardando mensaje:", error);
+    }
+
+    setInputText("");
+    setLoading(true);
+
+    try { 
       const updatedMessages = [
         ...messages.map((msg) => ({
           role: msg.isMine ? "user" : "assistant",
@@ -70,24 +105,21 @@ export default function ChatScreen() {
       });
 
       const data = await response.json();
+      const aiText = data.choices[0].message.content;
+
       const aiMessage = {
-        id: Date.now().toString() + "-ai",
-        text: data.choices[0].message.content,
+        text: aiText,
         isMine: false,
         time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
+        timestamp: Date.now(),
       };
-
-      setMessages((prev) => [...prev, aiMessage]);
-
-      // Scroll al final de nuevo
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+ 
+      await addDoc(collection(db, chatCollectionName), aiMessage);
     } catch (error) {
-      console.error("Error al enviar mensaje a la API:", error);
+      console.error("Error al obtener respuesta de la API:", error);
     } finally {
       setLoading(false);
     }

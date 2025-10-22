@@ -7,6 +7,8 @@ import FavoriteScreen from "../screens/FavoriteScreen";
 import PendingScreen from "../screens/PendingScreen";
 import ChatScreen from "../screens/ChatScreen";
 
+import UserButton from "../components/UserButton";
+
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
@@ -19,7 +21,7 @@ export default function TabNavigator() {
           title: "Inicio",
           headerRight: () => (
             // TODO: USER ICON
-            <ButtonDrawer onPress={() => navigation.toggleDrawer()} />
+            <UserButton />
           ),
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         })}

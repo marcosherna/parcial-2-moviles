@@ -1,14 +1,17 @@
 import React from "react";
-import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native"; 
-import { getFirestore } from "firebase/firestore"
+import { View, StyleSheet, Text, FlatList, TouchableOpacity } from "react-native";
+// import { getFirestore } from "firebase/firestore";
 
 import { Plus } from "lucide-react-native";
 
+import { useUserSession } from "../store/userSession";
+
 import TaskCard from "../components/TaskCard";
-import { app } from "../libs/firebase"
+// import { app } from "../libs/firebase";
 
 export default function HomeScreen({ navigation }) {
   const [tasks, setTasks] = React.useState([]);
+  const user = useUserSession((state) => state.user);
 
   React.useEffect(() => {
     const data = Array.from({ length: 10 }, (_, index) => ({
@@ -21,21 +24,22 @@ export default function HomeScreen({ navigation }) {
     }));
     setTasks(data);
 
-    const db = getFirestore(app)
-    console.log("database", db)
-
+    // const db = getFirestore(app);
+    // console.log("database", db);
   }, []);
 
   const handleTaskClick = (task) => {
     navigation.navigate("task-detail");
   };
 
-  const handleFormClick = () => { 
-    navigation.navigate("task-form"); 
+  const handleFormClick = () => {
+    navigation.navigate("task-form");
   };
 
   return (
     <View style={styles.container}>
+      <Text>{user?.name}</Text>
+
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id.toString()}

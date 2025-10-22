@@ -2,10 +2,14 @@ import React from "react";
 import { View, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useUserSession } from "../store/userSession";
+
 import Input from "../components/Input";
 import XButton from "../components/XButton";
 
 export default function RegisterScreen({ navigation }) {
+  const setUser = useUserSession((state) => state.setUser);
+
   const [form, setForm] = React.useState({
     name: "",
     email: "",
@@ -24,18 +28,14 @@ export default function RegisterScreen({ navigation }) {
     if (!form.email.includes("@") || !form.email.includes(".")) return;
     if (form.password.length < 8) return;
 
-    Alert.alert(
-      "Registro exitoso ✅",
-      `Nombre: ${form.name}\nEmail: ${form.email}\nContraseña: ${form.password}`,
-      [
-        {
-          text: "Continuar",
-          onPress: () => navigation.navigate("main-app"),
-        },
-      ]
-    );
+    setUser({ name: form.name, email: form.email, password: form.password });
 
-    navigation.navigate("main-app");
+    Alert.alert("Registro exitoso ✅", "", [
+      {
+        text: "Continuar",
+        onPress: () => navigation.navigate("main-app"),
+      },
+    ]);
   };
 
   return (

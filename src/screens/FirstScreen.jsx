@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -10,13 +10,17 @@ export default function FirstScreen({ navigation }) {
     navigation.navigate("register");
   };
 
+  const handleLoginScreen = () => {
+    navigation.navigate("login");
+  };
+
   React.useEffect(() => {
-    console.log(db)
-  }, [])
+    console.log(db);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <XButton title="Inciar sesion" />
+      <XButton title="Inciar sesion" onPress={() => handleLoginScreen()} />
       <XButton
         variant="secondary"
         title="Registrarme"

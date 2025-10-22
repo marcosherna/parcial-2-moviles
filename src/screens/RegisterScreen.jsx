@@ -25,26 +25,26 @@ export default function RegisterScreen({ navigation }) {
     navigation.pop();
   };
   const handleSubmit = async () => {
-    // if (form.name.trim().length < 6) return;
-    // if (!form.email.includes("@") || !form.email.includes(".")) return;
-    // if (form.password.length < 8) return;
+    if (form.name.trim().length < 6) return;
+    if (!form.email.includes("@") || !form.email.includes(".")) return;
+    if (form.password.length < 8) return;
 
-    // const user = {
-    //   name: form.name,
-    //   email: form.email,
-    //   password: form.password,
-    // };
-    // const response = await registerUserInFirestore(user);
+    const user = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+    };
+    const response = await registerUserInFirestore(user);
 
-    // setUser(response.data);
+    setUser(response.data);
 
-    // Alert.alert("Registro exitoso ", "", [
-    //   {
-    //     text: "Continuar",
-    //     onPress: () => navigation.navigate("main-app"),
-    //   },
-    // ]);
-    navigation.navigate("main-app")
+    Alert.alert("Registro exitoso ", "", [
+      {
+        text: "Continuar",
+        onPress: () => navigation.navigate("main-app"),
+      },
+    ]);
+    // navigation.navigate("main-app")
   };
 
   return (

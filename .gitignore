@@ -5,6 +5,7 @@ node_modules/
 package-lock.json
 
 /src/libs/firebase.js
+/src/libs/groq.js
 
 # Expo
 .expo/

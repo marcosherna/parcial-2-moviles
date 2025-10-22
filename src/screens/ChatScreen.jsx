@@ -5,21 +5,25 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
+
 import MessageBubble from "../components/MessageBubble";
 import Input from "../components/Input";
 import IconButton from "../components/IconButton";
 
+import { API_URL, API_KEY } from "../libs/groq"; 
+
 export default function ChatScreen() {
   const [messages, setMessages] = useState([
     { id: "1", text: "Hola! Cómo estás?", isMine: false, time: "01:15 PM" },
-    { id: "2", text: "Bien, gracias! 😊", isMine: true, time: "01:16 PM" },
   ]);
-
   const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const flatListRef = useRef(null);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputText.trim() === "") return;
 
     const newMessage = {
@@ -39,6 +43,54 @@ export default function ChatScreen() {
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
+
+    // Llamada al asistente
+    setLoading(true);
+    try {
+      const updatedMessages = [
+        ...messages.map((msg) => ({
+          role: msg.isMine ? "user" : "assistant",
+          content: msg.text,
+        })),
+        { role: "user", content: inputText },
+      ];
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          messages: updatedMessages,
+          temperature: 0.7,
+          max_tokens: 100,
+        }),
+      });
+
+      const data = await response.json();
+      const aiMessage = {
+        id: Date.now().toString() + "-ai",
+        text: data.choices[0].message.content,
+        isMine: false,
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+
+      // Scroll al final de nuevo
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error) {
+      console.error("Error al enviar mensaje a la API:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,13 +113,18 @@ export default function ChatScreen() {
         contentContainerStyle={styles.messagesContainer}
       />
 
+      {loading && (
+        <View style={styles.loading}>
+          <ActivityIndicator size="small" color="#10B981" />
+        </View>
+      )}
+
       <View style={styles.inputRow}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, marginRight: 8 }}>
           <Input
             placeholder="Escribe un mensaje..."
             value={inputText}
             onChangeText={setInputText}
-            style={styles.inputField} 
           />
         </View>
         <IconButton
@@ -96,12 +153,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#E5E7EB",
   },
-  inputField: {
-    flex: 1, 
-    marginRight: 8, 
-  },
-  sendButton: {
-    borderRadius: 24,
-    padding: 8,
+  loading: {
+    position: "absolute",
+    bottom: 60,
+    left: 0,
+    right: 0,
+    alignItems: "center",
   },
 });

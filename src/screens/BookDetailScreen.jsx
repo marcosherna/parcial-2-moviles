@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Switch } from "react-native";
-export default function TaskDetailScreen() {
+
+export default function BookDetailScreen() {
   const [isEnabled, setIsEnabled] = React.useState(false);
 
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);

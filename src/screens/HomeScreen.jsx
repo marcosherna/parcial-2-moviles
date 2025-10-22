@@ -1,35 +1,38 @@
 import React from "react";
-import { View, StyleSheet, Text, FlatList, TouchableOpacity } from "react-native";
-// import { getFirestore } from "firebase/firestore";
-
+import {
+  View,
+  StyleSheet,
+  Text,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import { Plus } from "lucide-react-native";
 
-import { useUserSession } from "../store/userSession";
-
-import TaskCard from "../components/TaskCard";
-// import { app } from "../libs/firebase";
+import { subscribeToBooks } from "../network/firebase";
+import BookCard from "../components/BookCard";
 
 export default function HomeScreen({ navigation }) {
-  const [tasks, setTasks] = React.useState([]);
-  const user = useUserSession((state) => state.user);
+  const [books, setBooks] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const data = Array.from({ length: 10 }, (_, index) => ({
-      id: index + 1,
-      title: `Tarea #${index + 1}`,
-      taskNumber: index + 1,
-      time: "9:30 - 10:00",
-      type: index % 2 === 0 ? "Internal Task" : "External Task",
-      completed: index % 3 === 0,
-    }));
-    setTasks(data);
+    const unsubscribe = subscribeToBooks(
+      "libros-demo",
+      (booksList) => {
+        setBooks(booksList);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("❌ Error escuchando libros:", error);
+        setLoading(false);
+      }
+    );
 
-    // const db = getFirestore(app);
-    // console.log("database", db);
+    return () => unsubscribe();
   }, []);
 
   const handleTaskClick = (task) => {
-    navigation.navigate("task-detail");
+    navigation.navigate("book-detail");
   };
 
   const handleFormClick = () => {
@@ -38,23 +41,23 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text>{user?.name}</Text>
-
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TaskCard
-            title={item.title}
-            taskNumber={item.taskNumber}
-            time={item.time}
-            type={item.type}
-            completed={item.completed}
-            onPress={() => handleTaskClick(item)}
-          />
-        )}
-        contentContainerStyle={{ paddingHorizontal: 10 }}
-      />
+      {books.length === 0 ? (
+        <Text style={styles.empty}>No hay libros disponibles 📚</Text>
+      ) : (
+        <FlatList
+          data={books}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <BookCard
+              title={item?.titulo}
+              author={item?.autor}
+              thumbnail={item.miniatura}
+              onPress={() => handleTaskClick()}
+            />
+          )}
+          contentContainerStyle={{ padding: 10 }}
+        />
+      )}
 
       <TouchableOpacity style={styles.fab} onPress={handleFormClick}>
         <Plus size={24} color="#FFFFFF" />

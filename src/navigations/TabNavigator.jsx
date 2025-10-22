@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Home, Heart, Clock, MessageCircle } from "lucide-react-native";
 
 import ButtonDrawer from "../components/ButtonDrawer";
-import TaskStackNavigator from "./TaskStackNavigator";
+import BookStackNavigator from "./BookStackNavigator";
 import FavoriteScreen from "../screens/FavoriteScreen";
 import PendingScreen from "../screens/PendingScreen";
 import ChatScreen from "../screens/ChatScreen";
@@ -16,7 +16,7 @@ export default function TabNavigator() {
     <Tab.Navigator>
       <Tab.Screen
         name="Home"
-        component={TaskStackNavigator}
+        component={BookStackNavigator}
         options={({ navigation }) => ({
           title: "Inicio",
           headerRight: () => (

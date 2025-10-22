@@ -4,10 +4,38 @@ import {
   doc,
   setDoc,
   getDoc,
+  addDoc,
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "../libs/firebase";
+
+const getFavCollectionName = (userSlug) => `${userSlug}-favoritos`;
+const getPendingCollectionName = (userSlug) => `${userSlug}-pendientes`;
+
+/**
+ * Guarda un usuario en la colección 'user-register' en Firestore
+ * y devuelve el documento registrado.
+ * @param {{name: string, email: string, password: string}} userData
+ * @returns {Promise<{id: string, data: object}>} - Documento guardado
+ */
+export const registerUserInFirestore = async (userData) => {
+  try {
+    const docRef = doc(db, "user-register", userData.email);
+    await setDoc(docRef, userData);
+
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return { id: docSnap.id, data: docSnap.data() };
+    } else {
+      throw new Error("Documento no encontrado después de guardar");
+    }
+  } catch (error) {
+    console.log("Error registrando usuario:", error);
+    throw error;
+  }
+};
 
 /**
  * Escucha en tiempo real los cambios en una colección de Firestore.
@@ -104,11 +132,10 @@ export const updateBookField = async (
 export const deleteBook = async (collectionName, bookId, onError) => {
   try {
     const docRef = doc(db, collectionName, bookId);
-    await deleteDoc(docRef); 
+    await deleteDoc(docRef);
     return true;
   } catch (error) {
     onError?.(error);
     return false;
   }
 };
-

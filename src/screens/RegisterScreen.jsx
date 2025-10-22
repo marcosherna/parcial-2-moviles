@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useUserSession } from "../store/userSession";
+import { registerUserInFirestore } from "../network/firebase";
 
 import Input from "../components/Input";
 import XButton from "../components/XButton";
@@ -23,12 +24,19 @@ export default function RegisterScreen({ navigation }) {
   const handleBack = () => {
     navigation.pop();
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (form.name.trim().length < 6) return;
     if (!form.email.includes("@") || !form.email.includes(".")) return;
     if (form.password.length < 8) return;
 
-    setUser({ name: form.name, email: form.email, password: form.password });
+    const user = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+    };
+    const response = await registerUserInFirestore(user);
+
+    setUser(response.data);
 
     Alert.alert("Registro exitoso ✅", "", [
       {

@@ -1,12 +1,18 @@
+import React from "react"
 import { Text, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import XButton from "../components/XButton";
+import { db } from "../libs/firebase";
 
 export default function FirstScreen({ navigation }) {
   const handleRegisterScreen = () => {
     navigation.navigate("register");
   };
+
+  React.useEffect(() => {
+    console.log(db)
+  }, [])
 
   return (
     <SafeAreaView style={styles.container}>

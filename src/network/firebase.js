@@ -10,8 +10,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../libs/firebase";
 
-const getFavCollectionName = (userSlug) => `${userSlug}-favoritos`;
-const getPendingCollectionName = (userSlug) => `${userSlug}-pendientes`;
+export const getFavCollectionName = (userSlug) => `${userSlug}-favoritos`;
+export const getPendingCollectionName = (userSlug) => `${userSlug}-pendientes`;
 
 /**
  * Guarda un usuario en la colección 'user-register' en Firestore

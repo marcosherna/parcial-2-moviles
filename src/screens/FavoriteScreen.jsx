@@ -29,7 +29,10 @@ export default function FavoriteScreen({ navigation }) {
   }, [favCollectionName]);
 
   const handleBookPress = (book) => {
-    navigation.navigate("book", { screen: "book-detail", params: { book } });
+    navigation.navigate("book", {
+      screen: "book-detail",
+      params: { book, fromFavorites: true },
+    });
   };
 
   return (

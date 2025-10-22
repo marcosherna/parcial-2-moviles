@@ -11,13 +11,14 @@ const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator>
       <Tab.Screen
         name="Home"
         component={TaskStackNavigator}
         options={({ navigation }) => ({
           title: "Inicio",
-          headerLeft: () => (
+          headerRight: () => (
+            // TODO: USER ICON
             <ButtonDrawer onPress={() => navigation.toggleDrawer()} />
           ),
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,

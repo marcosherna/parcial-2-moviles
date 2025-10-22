@@ -1,8 +1,8 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 
-// import TabNavigator from "./TabNavigator";
-import DrawerNavigator from "./DrawerNavigator";
+import TabNavigator from "./TabNavigator";
+// import DrawerNavigator from "./DrawerNavigator";
 import FirstScreen from "../screens/FirstScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 
@@ -13,7 +13,7 @@ export default function StackNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="first" component={FirstScreen} />
-        <Stack.Screen name="main-app" component={DrawerNavigator} /> 
+        <Stack.Screen name="main-app" component={TabNavigator} /> 
         <Stack.Screen name="register" component={RegisterScreen} />
       </Stack.Navigator>
     </NavigationContainer>

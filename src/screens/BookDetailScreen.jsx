@@ -1,15 +1,46 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, Switch } from "react-native";
+import { View, Text, StyleSheet, Image, Switch, Alert } from "react-native";
 import IconButton from "../components/IconButton";
+import { useUserSession } from "../store/userSession";
+import { addBookToUserCollection } from "../network/firebase";
 
-export default function BookDetailScreen({ navigation, route }) {
+export default function BookDetailScreen({ route }) {
   const { book } = route.params || {};
-  const [isRead, setIsRead] = React.useState(false);
+  const getUserCollectionPrefix = useUserSession(
+    (state) => state.getUserCollectionPrefix
+  );
+  const userPrefix = getUserCollectionPrefix();
+
+  const [isRead, setIsRead] = React.useState(book?.estado === "leido");
   const [isFavorite, setIsFavorite] = React.useState(false);
+ 
+  const toggleRead = async () => {
+    const newState = !isRead;
+    setIsRead(newState);
 
-  const toggleRead = () => setIsRead((prev) => !prev);
-  const toggleFavorite = () => setIsFavorite((prev) => !prev);
+    try {
+      await addBookToUserCollection(
+        userPrefix,
+        { ...book, estado: newState ? "leido" : "pendiente" },
+        "pendientes"
+      );
+    } catch (error) {
+      Alert.alert("Error", "No se pudo actualizar el estado del libro.");
+      setIsRead(!newState);
+    }
+  };
+ 
+  const toggleFavorite = async () => {
+    const newState = !isFavorite;
+    setIsFavorite(newState);
 
+    try {
+      await addBookToUserCollection(userPrefix, book, "favoritos");
+    } catch (error) {
+      Alert.alert("Error", "No se pudo agregar a favoritos.");
+      setIsFavorite(!newState);
+    }
+  };
   return (
     <View style={styles.container}>
       {/* Imagen */}
@@ -84,7 +115,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
-    gap: 10
+    gap: 10,
   },
   switchLabel: {
     fontSize: 16,

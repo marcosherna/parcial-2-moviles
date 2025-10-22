@@ -9,7 +9,7 @@ export default function UserButton() {
   const handleOnPress = () => {
     Alert.alert(
       "Informacion del usuario",
-      `Nombre: ${userSession?.name}\nEmail: ${userSession.email}\nPassword: Denegado!`
+      `Nombre: ${userSession?.name}\nEmail: ${userSession?.email}\nPassword: Denegado!`
     );
   };
 
